@@ -1,13 +1,13 @@
 $(function(){
-	var ranges = [];
-	var maxPasses = 3;
-	var suppressionRate = 0.15;
-	var increaseBy = 5;
-	var positionArray = [];
-	var sectionHeight = h / (colourArray.length-1);
-	var startScale = (sectionHeight/100)*2;
-	var scaleReduction = 0.9;
-	var speed = 1;
+	var ranges = [],
+		maxPasses = 3,
+		suppressionRate = 0.15,
+		increaseBy = 5,
+		positionArray = [],
+		sectionHeight = h / (colourArray.length-1),
+		startScale = (sectionHeight/100)*2,
+		scaleReduction = 0.9,
+		speed = 1;
 
 	function reset() {
 		ctx.fillStyle = 'rgb('+colourArray[0][0]+','+colourArray[0][1]+','+colourArray[0][2]+')';;
@@ -58,10 +58,7 @@ $(function(){
 				if(isNaN(basePoint)){
 					basePoint = 0;
 				}
-				var num = max;
-				for (var p=0;p<pass;p++){
-					num *= suppressionRate;
-				}
+				var num = max*Math.pow(suppressionRate,pass);
 				newPoints.push(basePoint+getRandomInt(0-num,num));
 			}
 		}
@@ -172,7 +169,6 @@ $(function(){
 	function drawPath(array,colour,yStart,scale){
 		var gap = w/array.length;
 		ctx.beginPath();
-		console.log(yStart);
 		ctx.moveTo(0,yStart);
 		for(var i=0; i<array.length;i++){
 			var x = (gap*i) + gap,
@@ -189,5 +185,18 @@ $(function(){
 	// ================== GET STARTED ================
 	generateRanges();
 	requestAnimationFrame(drawCycle);
-	setInterval(animateRange,1);
+	setInterval(animateRange,10);
+
+	// ================== CONTROLS ===================
+	var speeds = [1,2,10,50,100,0];
+	speedIndex = 0;
+	function toggleSpeed(){
+		speedIndex++;
+		if(speedIndex>speeds.length-1){
+			speedIndex=0;
+		}
+		speed = speeds[speedIndex];
+		console.log(speed);
+	}
+	$('body').on('click',$.proxy(toggleSpeed,this));
 });

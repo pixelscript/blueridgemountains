@@ -1,3 +1,13 @@
+window.requestAnimFrame = (function(callback) {
+    return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function(callback) {
+                window.setTimeout(callback, 1000 / 60);
+            };
+})();
 /**
  * Returns a random number between min (inclusive) and max (exclusive)
  */

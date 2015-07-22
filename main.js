@@ -5,8 +5,9 @@ $(function(){
 	var increaseBy = 5;
 	var positionArray = [];
 	var sectionHeight = h / (colourArray.length-1);
-	var startScale = 2;
-	var endScale = 1.2
+	var startScale = (sectionHeight/100)*2;
+	var scaleReduction = 0.9;
+	var speed = 1;
 
 	function reset() {
 		ctx.fillStyle = 'rgb('+colourArray[0][0]+','+colourArray[0][1]+','+colourArray[0][2]+')';;
@@ -20,7 +21,7 @@ $(function(){
 	// ================ GENERATE RANGES ================ //
 
 	function generateRanges(){
-		var scale = 2;
+		var scale = startScale;
 		for(var i=0; i<colourArray.length-1;i++){
 			var yStart = (sectionHeight*i);
 
@@ -35,7 +36,7 @@ $(function(){
 				"yStart" : yStart,
 				"scale" : scale,
 			})	
-			scale *= 0.8;
+			scale *= scaleReduction;
 
 			positionArray.push(yStart);
 		}
@@ -83,19 +84,23 @@ $(function(){
 	function animateRange(){
 		for (var i=0;i<ranges.length;i++){
 			var range = ranges[i];
-			range.yStart++;
+			range.yStart+=speed;
+			range.scale = startScale*Math.pow(scaleReduction,(range.yStart/sectionHeight));
 			var closest = closestDivision(range.yStart);
 			range.colour = colourBlending(closest.index,closest.percent);
 		}
-		heightAnimate++
-		if(heightAnimate>sectionHeight){
-			heightAnimate = 0;
+		var lastRange = ranges[ranges.length-1];
+		if((lastRange.yStart-(100*lastRange.scale))>h){
 			incrementStack();
+			removeFromStack();
 		}
 	}
 	function incrementStack(){
-		ranges.splice(ranges.length-1,1);
 		ranges.unshift(generateNewRange());
+	}
+
+	function removeFromStack(){
+		ranges.splice(ranges.length-1,1);
 	}
 
 	function generateNewRange(){
@@ -153,7 +158,7 @@ $(function(){
 
 	function drawCycle(){
 		reset();
-		for (var i=0;i<ranges.length-1;i++){
+		for (var i=0;i<ranges.length;i++){
 			var range = ranges[i];
 			drawRange(range);
 		}
@@ -167,7 +172,8 @@ $(function(){
 	function drawPath(array,colour,yStart,scale){
 		var gap = w/array.length;
 		ctx.beginPath();
-		ctx.moveTo(0,array[0]+yStart);
+		console.log(yStart);
+		ctx.moveTo(0,yStart);
 		for(var i=0; i<array.length;i++){
 			var x = (gap*i) + gap,
 				y = (array[i]*scale) + yStart;
